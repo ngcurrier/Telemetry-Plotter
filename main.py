@@ -33,8 +33,8 @@ def main():
                 print("Load a CSV first.")
                 continue
             query = input("Search query for Y-axis (empty for all): ")
-            selected = cu.search_and_select(de.get_keys(), query)
-            if selected:
+            selected_list = cu.search_and_select(de.get_keys(), query, multi=True)
+            for selected in selected_list:
                 if selected in current_y_keys:
                     current_y_keys.remove(selected)
                     print(f"Removed {selected}")
@@ -43,6 +43,10 @@ def main():
                     print(f"Added {selected}")
         
         elif choice == '3':
+            current_y_keys = []
+            print("Y-Axis selection cleared.")
+        
+        elif choice == '4':
             if de.df is None:
                 print("Load a CSV first.")
                 continue
@@ -52,25 +56,25 @@ def main():
                 de.set_x_column(selected)
                 print(f"X-Axis column set to {selected}. Estimated 'frequency': {de.fs:.2f}")
         
-        elif choice == '4':
+        elif choice == '5':
             if not current_y_keys:
                 print("Select at least one Y-axis first.")
                 continue
             pe.plot_line(current_y_keys)
         
-        elif choice == '5':
+        elif choice == '6':
             if not current_y_keys:
                 print("Select at least one Y-axis first.")
                 continue
             pe.plot_fft(current_y_keys)
         
-        elif choice == '6':
+        elif choice == '7':
             if not current_y_keys:
                 print("Select at least one Y-axis first.")
                 continue
             pe.plot_spectrogram(current_y_keys)
         
-        elif choice == '7':
+        elif choice == '8':
             if not current_y_keys:
                 print("Select a Y-axis first. (Filter applies to all selected)")
                 continue
@@ -94,7 +98,7 @@ def main():
                 current_y_keys = new_keys
             input("\nPress Enter to continue...")
         
-        elif choice == '8':
+        elif choice == '9':
             if not current_y_keys:
                 print("Select a Y-axis first.")
                 continue
@@ -108,7 +112,7 @@ def main():
                         print(f"  {s_k}: {s_v}")
             input("\nPress Enter to continue...")
         
-        elif choice == '9':
+        elif choice == '10':
             if de.df is None:
                 print("Load a CSV first.")
                 continue

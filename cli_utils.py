@@ -30,7 +30,7 @@ class CLIUtils:
             return None
 
     @staticmethod
-    def search_and_select(keys, query=None, page_size=20):
+    def search_and_select(keys, query=None, page_size=20, multi=False):
         if query:
             filtered_keys = [(i, k) for i, k in enumerate(keys) if query.lower() in k.lower()]
         else:
@@ -38,7 +38,7 @@ class CLIUtils:
         
         if not filtered_keys:
             print("No keys found matching query.")
-            return None
+            return [] if multi else None
         
         total_matches = len(filtered_keys)
         current_idx = 0
@@ -49,7 +49,7 @@ class CLIUtils:
                 idx, key = filtered_keys[i]
                 print(f"[{idx}] {key}")
             
-            print("\nOptions: [index] to select, [n] for next page, [p] for previous, [q] to cancel")
+            print("\nOptions: [index] to select (comma-separated for multi), [n] for next page, [p] for previous, [q] to cancel")
             choice = input("Choice: ").strip().lower()
             
             if choice == 'n':
@@ -63,18 +63,27 @@ class CLIUtils:
                 else:
                     print("Already at the first page.")
             elif choice == 'q' or not choice:
-                return None
+                return [] if multi else None
             else:
                 try:
-                    selected_idx = int(choice)
-                    # Check if selected_idx is in the filtered_keys (as the first element of the tuple)
-                    # For simplicity, we check if it's in the full keys range
-                    if 0 <= selected_idx < len(keys):
-                        return keys[selected_idx]
+                    indices = [int(i.strip()) for i in choice.split(',')]
+                    valid_keys = []
+                    for idx in indices:
+                        if 0 <= idx < len(keys):
+                            valid_keys.append(keys[idx])
+                        else:
+                            print(f"Warning: Index {idx} is out of range.")
+                    
+                    if not valid_keys:
+                        print("No valid indices selected.")
+                        continue
+
+                    if multi:
+                        return valid_keys
                     else:
-                        print("Invalid index.")
+                        return valid_keys[0]
                 except ValueError:
-                    print("Invalid input.")
+                    print("Invalid input. Please enter integers or navigation commands.")
 
     @staticmethod
     def print_menu(current_x=None, current_y_list=None):
@@ -84,13 +93,14 @@ class CLIUtils:
         print("\n--- Flight Data Analysis Tool ---")
         print("1. Load CSV")
         print("2. Add/Remove Y-Axis (Current Data)")
-        print("3. Set X-Axis Column")
-        print("4. Plot Y(s) vs X (Line)")
-        print("5. Plot FFT")
-        print("6. Plot Spectrogram")
-        print("7. Filter/Manipulate Data")
-        print("8. Show Statistics")
-        print("9. Save CSV")
+        print("3. Clear Y-Axis Selection")
+        print("4. Set X-Axis Column")
+        print("5. Plot Y(s) vs X (Line)")
+        print("6. Plot FFT")
+        print("7. Plot Spectrogram")
+        print("8. Filter/Manipulate Data")
+        print("9. Show Statistics")
+        print("10. Save CSV")
         print("0. Exit")
         print("---------------------------------")
         print(f"Current X-Axis: {current_x if current_x else 'Not Set (Defaults to Index)'}")
